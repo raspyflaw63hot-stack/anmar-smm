@@ -148,9 +148,117 @@ app.post("/api/logout", (req, res) => {
   });
 });
 
+
+// Create a new authenticated order
+app.post("/api/orders", async (req, res) => {
+  try {
+    const user = readUsers().find(
+      u => u.id === req.session.userId
+    );
+
+    if (!user) {
+      return res.status(401).json({
+        message: "سجل الدخول أولاً"
+      });
+    }
+
+    const { platform, service, link, details = "" } = req.body;
+
+    const platforms = ["TikTok", "Instagram", "Telegram"];
+    const services = [
+      "إدارة حساب",
+      "صناعة محتوى",
+      "حملة إعلانية"
+    ];
+
+    let parsedLink;
+    try {
+      parsedLink = new URL(link);
+    } catch {
+      return res.status(400).json({
+        message: "الرابط غير صالح"
+      });
+    }
+
+    if (
+      !platforms.includes(platform) ||
+      !services.includes(service) ||
+      !["http:", "https:"].includes(parsedLink.protocol) ||
+      String(details).length > 1000
+    ) {
+      return res.status(400).json({
+        message: "تحقق من بيانات الطلب"
+      });
+    }
+
+    const result = await pool.query(
+      `INSERT INTO orders
+       (user_id, platform, service, link, details)
+       VALUES ($1, $2, $3, $4, $5)
+       RETURNING id, platform, service, status, created_at`,
+      [user.id, platform, service, parsedLink.href, String(details)]
+    );
+
+    res.status(201).json({
+      message: "تم حفظ الطلب بنجاح",
+      order: result.rows[0]
+    });
+  } catch (error) {
+    console.error("ORDER CREATE ERROR:", error.message);
+    res.status(500).json({
+      message: "تعذر حفظ الطلب"
+    });
+  }
+});
+
+// Get orders belonging to the logged-in user
+app.get("/api/orders", async (req, res) => {
+  try {
+    const user = readUsers().find(
+      u => u.id === req.session.userId
+    );
+
+    if (!user) {
+      return res.status(401).json({
+        message: "سجل الدخول أولاً"
+      });
+    }
+
+    const result = await pool.query(
+      `SELECT id, platform, service, status, created_at
+       FROM orders
+       WHERE user_id = $1
+       ORDER BY created_at DESC`,
+      [user.id]
+    );
+
+    res.json({ orders: result.rows });
+  } catch (error) {
+    console.error("ORDER LIST ERROR:", error.message);
+    res.status(500).json({
+      message: "تعذر تحميل الطلبات"
+    });
+  }
+});
+
 async function startServer() {
   try {
     await pool.query("SELECT 1");
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS orders (
+        id BIGSERIAL PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        platform TEXT NOT NULL,
+        service TEXT NOT NULL,
+        link TEXT NOT NULL,
+        details TEXT DEFAULT '',
+        status TEXT NOT NULL DEFAULT 'pending',
+        created_at TIMESTAMPTZ DEFAULT NOW()
+      )
+    `);
+
+    console.log("ORDERS TABLE READY");
     console.log("POSTGRESQL CONNECTED");
 
     app.listen(PORT, "0.0.0.0", () => {

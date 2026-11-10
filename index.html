@@ -150,33 +150,82 @@ main{padding:16px}
 </div>
 
 <script>
-let orders=[];
+async function showOrders() {
+  const list = document.getElementById("orderList");
 
-function showPage(id,button){
-document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-document.getElementById(id).classList.add('active');
-document.querySelectorAll('aside button').forEach(b=>b.classList.remove('active'));
-if(button)button.classList.add('active');
+  try {
+    const response = await fetch("/api/orders");
+    if (!response.ok) {
+      list.innerHTML = '<tr><td colspan="3">سجل الدخول لعرض طلباتك</td></tr>';
+      return;
+    }
+
+    const data = await response.json();
+    const orders = data.orders || [];
+
+    document.getElementById("total").textContent = orders.length;
+
+    list.innerHTML = orders.length
+      ? orders.map(o => `<tr>
+          <td>${escapeHTML(o.platform)}</td>
+          <td>${escapeHTML(o.service)}</td>
+          <td class="status">${escapeHTML(o.status)}</td>
+        </tr>`).join("")
+      : '<tr><td colspan="3">لا توجد طلبات بعد</td></tr>';
+  } catch {
+    list.innerHTML = '<tr><td colspan="3">تعذر تحميل الطلبات</td></tr>';
+  }
 }
 
-document.getElementById('orderForm').addEventListener('submit',function(e){
-e.preventDefault();
+function escapeHTML(value) {
+  return String(value ?? "").replace(/[&<>"']/g, c => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;",
+    '"': "&quot;", "'": "&#39;"
+  })[c]);
+}
 
-let platform=document.getElementById('platform').value;
-let service=document.getElementById('service').value;
-let link=document.getElementById('link').value;
+function showPage(id, button) {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  document.querySelectorAll("aside button").forEach(b => b.classList.remove("active"));
+  if (button) button.classList.add("active");
+  if (id === "orders") showOrders();
+}
 
-orders.push({platform,service,link});
+document.getElementById("orderForm").addEventListener("submit", async function(e) {
+  e.preventDefault();
 
-document.getElementById('total').textContent=orders.length;
+  const button = this.querySelector('button[type="submit"]');
+  button.disabled = true;
 
-document.getElementById('orderList').innerHTML=orders.map(o=>
-`<tr><td>${o.platform}</td><td>${o.service}</td><td class="status">تجريبي</td></tr>`
-).join('');
+  try {
+    const response = await fetch("/api/orders", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        platform: document.getElementById("platform").value,
+        service: document.getElementById("service").value,
+        link: document.getElementById("link").value,
+        details: document.getElementById("details").value
+      })
+    });
 
-this.reset();
-alert('تم تسجيل الطلب التجريبي بنجاح');
-showPage('orders');
+    const data = await response.json();
+
+    if (!response.ok) {
+      alert(data.message || "تعذر إرسال الطلب");
+      return;
+    }
+
+    alert("تم حفظ طلبك بنجاح");
+    this.reset();
+    await showOrders();
+    showPage("orders");
+  } catch {
+    alert("تعذر الاتصال بالسيرفر");
+  } finally {
+    button.disabled = false;
+  }
 });
 </script>
 </body>
