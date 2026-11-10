@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ANMAR SMM PANEL</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#0b0914;color:#fff;font-family:Arial,sans-serif}
+header{height:70px;background:#151022;border-bottom:1px solid #302344;display:flex;align-items:center;justify-content:space-between;padding:0 18px}
+.logo{font-size:22px;font-weight:bold;color:#b77aff}
+.logo span{color:white}
+.menu{background:#251735;color:white;border:1px solid #593b79;padding:10px 15px;border-radius:9px}
+.layout{display:flex;min-height:calc(100vh - 70px)}
+aside{width:220px;background:#120e1e;padding:20px 12px}
+aside button{display:block;width:100%;padding:15px;margin-bottom:9px;border:0;border-radius:9px;background:transparent;color:#c7bad8;text-align:right;font-size:15px}
+aside button.active,aside button:hover{background:#7136a8;color:white}
+main{flex:1;padding:25px;min-width:0}
+h1{font-size:25px}
+.sub{color:#a99bb9}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:14px;margin:25px 0}
+.card{background:#191328;border:1px solid #352348;padding:20px;border-radius:14px}
+.card small{color:#b9a6cc}
+.card strong{display:block;font-size:25px;margin-top:12px;color:#c58bff}
+.panel{background:#191328;border:1px solid #352348;padding:22px;border-radius:14px;margin-top:20px}
+.panel h2{font-size:19px;margin-top:0}
+input,select,textarea{width:100%;padding:13px;background:#0e0b18;border:1px solid #49335e;border-radius:9px;color:white;margin:9px 0 17px}
+label{color:#d9c9eb}
+.btn{background:#873fbd;color:white;border:0;border-radius:9px;padding:13px 20px;font-weight:bold;width:100%;cursor:pointer}
+.btn:hover{background:#a45bdb}
+.page{display:none}
+.page.active{display:block}
+.service{padding:17px;border-radius:11px;background:#211831;margin:10px 0;border:1px solid #49335e}
+.service b{color:#c58bff}
+table{width:100%;border-collapse:collapse}
+td,th{padding:13px;text-align:right;border-bottom:1px solid #352348}
+.status{color:#d9b4ff}
+.notice{color:#c6b4d7;font-size:13px;line-height:1.8}
+@media(max-width:650px){
+.layout{display:block}
+aside{width:100%;display:flex;overflow-x:auto;padding:9px}
+aside button{min-width:110px;text-align:center;margin:0 4px;padding:12px 7px}
+main{padding:16px}
+}
+</style>
+</head>
+<body>
+
+<header>
+<div class="logo">ANMAR <span>SMM</span></div>
+<button class="menu" onclick="showPage('dashboard')">لوحة التحكم</button>
+</header>
+
+<div class="layout">
+<aside>
+<button class="active" onclick="showPage('dashboard',this)">🏠 الرئيسية</button>
+<button onclick="showPage('services',this)">📱 الخدمات</button>
+<button onclick="showPage('order',this)">🛒 طلب جديد</button>
+<button onclick="showPage('orders',this)">📋 طلباتي</button>
+<button onclick="showPage('account',this)">👤 حسابي</button>
+</aside>
+
+<main>
+
+<section class="page active" id="dashboard">
+<h1>مرحباً بك في ANMAR SMM 👋</h1>
+<p class="sub">لوحة إدارة خدمات التسويق الرقمي</p>
+
+<div class="cards">
+<div class="card"><small>الرصيد التجريبي</small><strong>0.00</strong></div>
+<div class="card"><small>إجمالي الطلبات</small><strong id="total">0</strong></div>
+<div class="card"><small>الطلبات المكتملة</small><strong>0</strong></div>
+</div>
+
+<div class="panel">
+<h2>ابدأ من هنا</h2>
+<p class="sub">اختر المنصة والخدمة التي تحتاجها.</p>
+<button class="btn" onclick="showPage('order')">إنشاء طلب جديد</button>
+</div>
+
+<div class="panel">
+<h2>منصاتنا</h2>
+<div class="service">🎵 <b>TikTok</b><p class="sub">إدارة المحتوى والحملات الترويجية</p></div>
+<div class="service">📸 <b>Instagram</b><p class="sub">إدارة الحسابات والتسويق</p></div>
+<div class="service">✈️ <b>Telegram</b><p class="sub">إدارة القنوات والحملات</p></div>
+</div>
+</section>
+
+<section class="page" id="services">
+<h1>الخدمات</h1>
+<p class="sub">خدمات التسويق الرقمي</p>
+<div class="service">🎵 <b>TikTok</b><p>إعداد الحملات وصناعة المحتوى.</p></div>
+<div class="service">📸 <b>Instagram</b><p>تصميم المنشورات وإدارة الحسابات.</p></div>
+<div class="service">✈️ <b>Telegram</b><p>تنظيم القنوات وإدارة المحتوى.</p></div>
+</section>
+
+<section class="page" id="order">
+<h1>طلب جديد</h1>
+<div class="panel">
+<form id="orderForm">
+<label>اختر المنصة</label>
+<select id="platform" required>
+<option value="">اختر المنصة</option>
+<option>TikTok</option>
+<option>Instagram</option>
+<option>Telegram</option>
+</select>
+
+<label>نوع الخدمة</label>
+<select id="service" required>
+<option value="">اختر الخدمة</option>
+<option>إدارة حساب</option>
+<option>صناعة محتوى</option>
+<option>حملة إعلانية</option>
+</select>
+
+<label>رابط الحساب أو الصفحة</label>
+<input id="link" type="url" placeholder="https://..." required>
+
+<label>تفاصيل الطلب</label>
+<textarea id="details" rows="3" placeholder="اكتب تفاصيل الخدمة المطلوبة"></textarea>
+
+<button class="btn" type="submit">إرسال الطلب التجريبي</button>
+</form>
+<p class="notice">الطلبات في هذه النسخة تجريبية ومحلية، ولا يتم تنفيذ حملات أو خصم رصيد حقيقي.</p>
+</div>
+</section>
+
+<section class="page" id="orders">
+<h1>طلباتي</h1>
+<div class="panel">
+<table>
+<thead><tr><th>المنصة</th><th>الخدمة</th><th>الحالة</th></tr></thead>
+<tbody id="orderList"><tr><td colspan="3">لا توجد طلبات بعد</td></tr></tbody>
+</table>
+</div>
+</section>
+
+<section class="page" id="account">
+<h1>حسابي</h1>
+<div class="panel">
+<h2>ANMAR SMM</h2>
+<p class="sub">حساب تجريبي</p>
+<p>الرصيد: 0.00</p>
+<p>حالة الحساب: تجريبي</p>
+</div>
+</section>
+
+</main>
+</div>
+
+<script>
+let orders=[];
+
+function showPage(id,button){
+document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+document.getElementById(id).classList.add('active');
+document.querySelectorAll('aside button').forEach(b=>b.classList.remove('active'));
+if(button)button.classList.add('active');
+}
+
+document.getElementById('orderForm').addEventListener('submit',function(e){
+e.preventDefault();
+
+let platform=document.getElementById('platform').value;
+let service=document.getElementById('service').value;
+let link=document.getElementById('link').value;
+
+orders.push({platform,service,link});
+
+document.getElementById('total').textContent=orders.length;
+
+document.getElementById('orderList').innerHTML=orders.map(o=>
+`<tr><td>${o.platform}</td><td>${o.service}</td><td class="status">تجريبي</td></tr>`
+).join('');
+
+this.reset();
+alert('تم تسجيل الطلب التجريبي بنجاح');
+showPage('orders');
+});
+</script>
+</body>
+</html>

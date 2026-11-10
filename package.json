@@ -1,0 +1,29 @@
+{
+  "name": "anmar-smm",
+  "version": "1.0.0",
+  "description": "Anmar SMM - Social Media Marketing Platform",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/raspyflaw63hot-stack/anmar-smm.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/raspyflaw63hot-stack/anmar-smm/issues"
+  },
+  "homepage": "https://github.com/raspyflaw63hot-stack/anmar-smm#readme",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "express": "^5.3.0",
+    "express-rate-limit": "^8.7.4",
+    "express-session": "^1.19.0",
+    "helmet": "^8.3.0"
+  }
+}
