@@ -7,12 +7,18 @@ const rateLimit = require("express-rate-limit");
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
+const { Pool } = require("pg");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 const SECRET = crypto.randomBytes(32).toString("hex");
 const DB = path.join(__dirname, "users.json");
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false }
+});
 
 app.use(helmet({
   contentSecurityPolicy: false
@@ -142,8 +148,19 @@ app.post("/api/logout", (req, res) => {
   });
 });
 
-app.listen(PORT, "0.0.0.0", () => {
-  console.log("ANMAR SMM SERVER RUNNING");
-  console.log("http://localhost:" + PORT);
-});
+async function startServer() {
+  try {
+    await pool.query("SELECT 1");
+    console.log("POSTGRESQL CONNECTED");
+
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log("ANMAR SMM SERVER RUNNING");
+    });
+  } catch (error) {
+    console.error("DATABASE CONNECTION FAILED:", error.message);
+    process.exit(1);
+  }
+}
+
+startServer();
 
